@@ -64,7 +64,10 @@ afterAll(() => {
             .get('/api/articles/1')
             .expect(200)
             .then((response) => {
+
               const article = response.body.article;
+
+              
               expect(article).toHaveProperty('author');
               expect(article).toHaveProperty('title');
               expect(article).toHaveProperty('article_id');
@@ -73,15 +76,36 @@ afterAll(() => {
               expect(article).toHaveProperty('created_at');
               expect(article).toHaveProperty('votes');
               expect(article).toHaveProperty('article_img_url');
+              expect(article.author).toBe('butter_bridge');
+              expect(article.title).toBe('Living in the shadow of a great man');
+              expect(article.article_id).toBe(1);
+              expect(article.body).toBe('I find this existence challenging');
+              expect(article.topic).toBe('mitch');
+
+              console.log(response.body.article.created_at, '<---------')
+              
+              expect(article.created_at).toBe('2020-07-09T20:11:00.000Z');
+              expect(article.votes).toBe(100);
+              expect(article.article_img_url).toBe('https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700');
             });
         });
       
         test('404: responds with a custom 404 message when the article_id is not found', () => {
           return request(app)
-            .get('/api/articles/9999')
+            .get('/api/articles/99999')
             .expect(404)
             .then((response) => {
               expect(response.body.msg).toBe('Article not found');
             });
         });
+
+        test('400: responds with a custom 400 message when article_id is not a number', () => {
+          return request(app)
+            .get('/api/articles/notAnID')
+            .expect(400)
+            .then((response) => {
+              expect(response.body.msg).toBe('Bad Request');
+            });
+        });
+        
       });

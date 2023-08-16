@@ -7,9 +7,6 @@ exports.getArticleById = (req, res, next) => {
     .then((article) => {
       res.status(200).send({ article });
     })
-    .catch((err) => {
-      res.status(err.status).send({ msg: err.msg });
-      console.log(err.msg, '<-----HERE')
-    })
+    .catch(next)
     
 };
