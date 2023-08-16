@@ -11,7 +11,7 @@ app.use((_, res) => {
     res.status(404).send({msg : 'Endpoint not found'})
 })
 
-app.get('/api/articles/:article_id', )
+// app.get('/api/articles/:article_id', )
 
 
 module.exports = app
