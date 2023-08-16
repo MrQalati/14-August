@@ -3,6 +3,8 @@ const app = require('../app');
 const db = require('../db/connection');
 const seed = require('../db/seeds/seed');
 const testData = require('../db/data/test-data');
+const path = require('path');
+const fs = require('fs');
 
 
 beforeEach(() => {
@@ -40,4 +42,19 @@ afterAll(() => {
         });
     });
     });
+
+    describe('GET /api', () => {
+        test('responds with the list of available endpoints', () => {
+          const endpointsFilePath = path.join(__dirname, '../endpoints.json');
+          const endpointsData = fs.readFileSync(endpointsFilePath, 'utf8');
+          const expectedEndpoints = JSON.parse(endpointsData);
+      
+          return request(app)
+            .get('/api')
+            .expect(200)
+            .then((response) => {
+              expect(response.body).toEqual(expectedEndpoints);
+            });
+        });
+      });
 
