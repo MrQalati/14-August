@@ -58,3 +58,30 @@ afterAll(() => {
         });
       });
 
+      describe('GET /api/articles/:article_id', () => {
+        test('responds with an article object', () => {
+          return request(app)
+            .get('/api/articles/1')
+            .expect(200)
+            .then((response) => {
+              const article = response.body.article;
+              expect(article).toHaveProperty('author');
+              expect(article).toHaveProperty('title');
+              expect(article).toHaveProperty('article_id');
+              expect(article).toHaveProperty('body');
+              expect(article).toHaveProperty('topic');
+              expect(article).toHaveProperty('created_at');
+              expect(article).toHaveProperty('votes');
+              expect(article).toHaveProperty('article_img_url');
+            });
+        });
+      
+        test('404: responds with a custom 404 message when the article_id is not found', () => {
+          return request(app)
+            .get('/api/articles/9999')
+            .expect(404)
+            .then((response) => {
+              expect(response.body.msg).toBe('Article not found');
+            });
+        });
+      });
