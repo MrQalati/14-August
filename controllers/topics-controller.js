@@ -1,7 +1,4 @@
-
 const {fetchAllTopics} = require ('../models/topics-models')
-
-
 
 
 
