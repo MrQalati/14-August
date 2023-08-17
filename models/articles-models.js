@@ -5,7 +5,7 @@ exports.fetchArticleById = (article_id) => {
     const [article] = result.rows;
     if (!article) {
       return Promise.reject({ status: 404, msg: 'Article not found' });
-    }
+    } 
     return article;
-  });
+  })
 };
