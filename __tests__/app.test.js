@@ -106,3 +106,63 @@ afterAll(() => {
         });
         
       });
+    
+    describe('GET /api/articles', () => {
+      test('responds with an array of articles with required properties', () => {
+        return request(app)
+          .get('/api/articles')
+          .expect(200)
+          .then((response) => {
+            const articles = response.body.articles;
+            expect(Array.isArray(articles)).toBe(true);
+            articles.forEach((article) => {
+              expect(article).toHaveProperty('author');
+              expect(article).toHaveProperty('title');
+              expect(article).toHaveProperty('article_id');
+              expect(article).toHaveProperty('topic');
+              expect(article).toHaveProperty('created_at');
+              expect(article).toHaveProperty('votes');
+              expect(article).toHaveProperty('article_img_url');
+              expect(article).toHaveProperty('comment_count');
+              expect(article).not.toHaveProperty('body');
+            });
+          });
+      });
+      
+      test('articles are sorted by date in descending order', () => {
+        return request(app)
+          .get('/api/articles')
+          .expect(200)
+          .then((response) => {
+            const articles = response.body.articles;
+            for (let i = 0; i < articles.length - 1; i++) {
+              const currentArticleDate = Date.parse(articles[i].created_at);
+
+              const nextArticleDate = Date.parse(articles[i + 1].created_at);
+
+              expect(currentArticleDate).toBeGreaterThanOrEqual(nextArticleDate);
+            }
+          });
+      });
+      
+      test('body property is not present in articles', () => {
+        return request(app)
+          .get('/api/articles')
+          .expect(200)
+          .then((response) => {
+            const articles = response.body.articles;
+            articles.forEach((article) => {
+              expect(article).not.toHaveProperty('body');
+            });
+          });
+      });
+      
+      test('404: responds with a custom 404 message when the path is not found', () => {
+        return request(app)
+          .get('/api/nonExistentEndpoint')
+          .expect(404)
+          .then((response) => {
+            expect(response.body.msg).toBe('Endpoint not found');
+          });
+      });
+    }); 
