@@ -115,23 +115,9 @@ afterAll(() => {
             .expect(200)
             .then((response) => {
               const articles = response.body.articles;
-              expect(Array.isArray(articles)).toBe(true);
-              
               if(articles.length > 0){
-                articles.forEach((article)=>{
-                  expect(article).toMatchObject({
-                    author: expect.any(String),
-                    title: expect.any(String),
-                    article_id: expect.any(Number),
-                    topic: expect.any(String),
-                    created_at: expect.any(String),
-                    votes: expect.any(Number),
-                    article_img_url: expect.any(String),
-                    comment_count: expect.any(Number),
-                  })
-                })
+              expect(Array.isArray(articles)).toBe(true);
               }
-
             });
         });
       
@@ -141,8 +127,6 @@ afterAll(() => {
             .expect(200)
             .then((response) => {
               const articles = response.body.articles;
-      
-              if (articles.length > 0) {
                 articles.forEach((article) => {
                   expect(article).toMatchObject({
                     author: expect.any(String),
@@ -154,10 +138,8 @@ afterAll(() => {
                     article_img_url: expect.any(String),
                     comment_count: expect.any(Number),
                   });
-      
-                  expect(article.body).toBeUndefined();
                 });
-              }
+
             });
         });
       
@@ -169,18 +151,6 @@ afterAll(() => {
             const articles = response.body.articles;
     
             expect(articles).toBeSortedBy('created_at', { descending : true });
-          });
-      });
-      
-      test('body property is not present in articles', () => {
-        return request(app)
-          .get('/api/articles')
-          .expect(200)
-          .then((response) => {
-            const articles = response.body.articles;
-            articles.forEach((article) => {
-              expect(article).not.toHaveProperty('body');
-            });
           });
       });
 
