@@ -5,6 +5,7 @@ const seed = require('../db/seeds/seed');
 const testData = require('../db/data/test-data');
 const path = require('path');
 const fs = require('fs');
+const sorted = require('jest-sorted');
 
 
 beforeEach(() => {
@@ -35,7 +36,7 @@ afterAll(() => {
     describe('Error handling', () => {
         test('404:should responds with a custom 404 message when the path is not found', () => {
         return request(app)
-        .get('/api/nonexistentendpoint')
+        .get('/api/nonExistentEndpoint')
         .expect(404)
         .then((response) => {
             expect(response.body.msg).toBe('Endpoint not found');
@@ -107,41 +108,67 @@ afterAll(() => {
         
       });
     
-    describe('GET /api/articles', () => {
-      test('responds with an array of articles with required properties', () => {
-        return request(app)
-          .get('/api/articles')
-          .expect(200)
-          .then((response) => {
-            const articles = response.body.articles;
-            expect(Array.isArray(articles)).toBe(true);
-            articles.forEach((article) => {
-              expect(article).toHaveProperty('author');
-              expect(article).toHaveProperty('title');
-              expect(article).toHaveProperty('article_id');
-              expect(article).toHaveProperty('topic');
-              expect(article).toHaveProperty('created_at');
-              expect(article).toHaveProperty('votes');
-              expect(article).toHaveProperty('article_img_url');
-              expect(article).toHaveProperty('comment_count');
-              expect(article).not.toHaveProperty('body');
+      describe('GET /api/articles', () => {
+        test('responds with a status code of 200 and an array of articles', () => {
+          return request(app)
+            .get('/api/articles')
+            .expect(200)
+            .then((response) => {
+              const articles = response.body.articles;
+              expect(Array.isArray(articles)).toBe(true);
+              
+              if(articles.length > 0){
+                articles.forEach((article)=>{
+                  expect(article).toMatchObject({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: expect.any(Number),
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    article_img_url: expect.any(String),
+                    comment_count: expect.any(Number),
+                  })
+                })
+              }
+
             });
-          });
-      });
+        });
       
-      test('articles are sorted by date in descending order', () => {
+        test('each article has required properties', () => {
+          return request(app)
+            .get('/api/articles')
+            .expect(200)
+            .then((response) => {
+              const articles = response.body.articles;
+      
+              if (articles.length > 0) {
+                articles.forEach((article) => {
+                  expect(article).toMatchObject({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: expect.any(Number),
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    article_img_url: expect.any(String),
+                    comment_count: expect.any(Number),
+                  });
+      
+                  expect(article.body).toBeUndefined();
+                });
+              }
+            });
+        });
+      
+      test('responds with articles sorted by date in descending order', () => {
         return request(app)
           .get('/api/articles')
           .expect(200)
           .then((response) => {
             const articles = response.body.articles;
-            for (let i = 0; i < articles.length - 1; i++) {
-              const currentArticleDate = Date.parse(articles[i].created_at);
-
-              const nextArticleDate = Date.parse(articles[i + 1].created_at);
-
-              expect(currentArticleDate).toBeGreaterThanOrEqual(nextArticleDate);
-            }
+    
+            expect(articles).toBeSortedBy('created_at', { descending : true });
           });
       });
       
@@ -156,13 +183,5 @@ afterAll(() => {
             });
           });
       });
-      
-      test('404: responds with a custom 404 message when the path is not found', () => {
-        return request(app)
-          .get('/api/nonExistentEndpoint')
-          .expect(404)
-          .then((response) => {
-            expect(response.body.msg).toBe('Endpoint not found');
-          });
-      });
+
     }); 
