@@ -5,6 +5,7 @@ const seed = require('../db/seeds/seed');
 const testData = require('../db/data/test-data');
 const path = require('path');
 const fs = require('fs');
+const sorted = require('jest-sorted');
 
 
 beforeEach(() => {
@@ -35,7 +36,7 @@ afterAll(() => {
     describe('Error handling', () => {
         test('404:should responds with a custom 404 message when the path is not found', () => {
         return request(app)
-        .get('/api/nonexistentendpoint')
+        .get('/api/nonExistentEndpoint')
         .expect(404)
         .then((response) => {
             expect(response.body.msg).toBe('Endpoint not found');
@@ -106,3 +107,51 @@ afterAll(() => {
         });
         
       });
+    
+      describe('GET /api/articles', () => {
+        test('responds with a status code of 200 and an array of articles', () => {
+          return request(app)
+            .get('/api/articles')
+            .expect(200)
+            .then((response) => {
+              const articles = response.body.articles;
+              if(articles.length > 0){
+              expect(Array.isArray(articles)).toBe(true);
+              }
+            });
+        });
+      
+        test('each article has required properties', () => {
+          return request(app)
+            .get('/api/articles')
+            .expect(200)
+            .then((response) => {
+              const articles = response.body.articles;
+                articles.forEach((article) => {
+                  expect(article).toMatchObject({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: expect.any(Number),
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    article_img_url: expect.any(String),
+                    comment_count: expect.any(Number),
+                  });
+                });
+
+            });
+        });
+      
+      test('responds with articles sorted by date in descending order', () => {
+        return request(app)
+          .get('/api/articles')
+          .expect(200)
+          .then((response) => {
+            const articles = response.body.articles;
+    
+            expect(articles).toBeSortedBy('created_at', { descending : true });
+          });
+      });
+
+    }); 
